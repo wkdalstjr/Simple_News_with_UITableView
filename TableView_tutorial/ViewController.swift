@@ -12,6 +12,28 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     @IBOutlet weak var TableViewMain: UITableView!
     
+    //1. http 통신 방법
+    //2. JSON 데이터 형태 {"돈":"10000원"} -> key, value 형태 / {["100","1000","10000"]} -> key 나열
+
+    
+    func getNews() {
+        let task = URLSession.shared.dataTask(with: URL(string: "https://newsapi.org/v2/top-headlines?country=kr&apiKey=0d14f9feb1624e97b11b6a5b7aba0ff5")!) { (data, response, error) in
+            if let dataJson = data{
+                
+                //Json parsing
+                do{
+                    let json = try JSONSerialization.jsonObject(with: dataJson, options: []) as! Dictionary<String, Any>
+                    print(json)
+                    //Dictionary
+                    json
+                }
+                catch{}
+            }
+        }
+        
+        task.resume()
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // 데이터 몇개
         return 10
@@ -33,7 +55,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return cell
     }
     
-    // 클릭
+    //옵션 - 클릭 감지
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("CLICK \(indexPath.row)")
     }
@@ -45,6 +67,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         TableViewMain.delegate = self
         TableViewMain.dataSource = self
+        
+        getNews()
     }
 
     //tableview 테이블로 된 뷰 - 여러개의 행이 모여있는 목록 화면(뷰)
