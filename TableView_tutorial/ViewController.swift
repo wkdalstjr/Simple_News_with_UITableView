@@ -12,8 +12,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     @IBOutlet weak var TableViewMain: UITableView!
     
+    
+    var newsData : Array<Dictionary<String, Any>>?
     //1. http 통신 방법
     //2. JSON 데이터 형태 {"돈":"10000원"} -> key, value 형태 / {["100","1000","10000"]} -> key 나열
+    //3. 테이블뷰의 데이터 매칭
 
     
     func getNews() {
@@ -25,7 +28,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                     let json = try JSONSerialization.jsonObject(with: dataJson, options: []) as! Dictionary<String, Any>
                     print(json)
                     //Dictionary
-                    json
+                    let articles = json["articles"] as! Array<Dictionary<String, Any>>
+                    print(articles)
+                    self.newsData = articles
+                    
+                    DispatchQueue.main.async {
+                        self.TableViewMain.reloadData()
+                    }
+
                 }
                 catch{}
             }
@@ -36,7 +46,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // 데이터 몇개
-        return 10
+        
+        if let news = newsData {
+            return news.count
+        }
+        else {
+            return 0
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -46,11 +62,21 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         let cell = TableViewMain.dequeueReusableCell(withIdentifier: "Type1", for: indexPath) as! Type1
         // as? as! - 부모 자식 친자확인 느낌
-        cell.LabelText.text = "\(indexPath.row)"
+        
+        let idx = indexPath.row
+        if let news = newsData {
+            
+            let row = news[idx]
+            if let r = row as? Dictionary<String, Any> {
+                if let title = r["title"] as? String{
+                    cell.LabelText.text = title
+                }
+                
+            }
+            
+        }
         
         
-        
-        //cell.textLabel?.text = "\(indexPath.row)"
         
         return cell
     }
